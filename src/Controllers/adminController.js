@@ -4,9 +4,10 @@ const crypto = require("crypto");
 const bcrypt = require('bcrypt');
 const _ = require('lodash');
 const REFRESH_SECRET = process.env.REFRESH_SECRET;
-const JWT_KEY = process.env.JWT_KEY;
 // const emailValidator = require('email-validator');
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const JWT_KEY = process.env.JWT_KEY;
 
 module.exports.createAdmin = async function createAdmin(req, res) {
     try {
@@ -23,7 +24,6 @@ module.exports.createAdmin = async function createAdmin(req, res) {
 
         const plainPassword = crypto.randomBytes(6).toString("hex");
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
-        // const dbName = admin_${ Date.now()
         const safeUserName = userName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
         const dbName = `admin_${safeUserName}`;
         const newDbConnection = mongoose.connection.useDb(dbName);
@@ -51,6 +51,52 @@ module.exports.createAdmin = async function createAdmin(req, res) {
         res.status(500).json({ error });
     }
 };
+
+module.exports.loginAdmin = async function (req, res) {
+    try {
+        const { email, password } = req.body;
+
+        // Check if admin exists
+        const admin = await adminModal.findOne({ email });
+        if (!admin) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        // Compare password
+        const isMatch = await bcrypt.compare(password, admin.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
+
+        // Create JWT token
+        const token = jwt.sign(
+            {
+                adminId: admin._id,
+                databaseName: admin.databaseName
+            },
+            JWT_KEY,
+            { expiresIn: "7d" }
+        );
+
+        return res.status(200).json({
+            data: {
+                id: admin._id,
+                dbid: admin.id,
+                name: admin.name,
+                email: admin.email,
+                userName: admin.userName,
+                contact: admin.userName
+            },
+            message: "Login successful",
+            token
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
+
 
 // module.exports.login = async function login(req, res) {
 //     try {
