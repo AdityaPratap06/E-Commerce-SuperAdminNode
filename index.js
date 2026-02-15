@@ -42,10 +42,6 @@ const adminRoutes = require("./src/Routes/adminRoutes");
 // Use Routers
 app.use('/admin', adminRoutes);
 
-io.on('connection', (socket) => {
-    console.log('a user connected 1', socket.id);
-});
-
 // Start the server
 server.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
