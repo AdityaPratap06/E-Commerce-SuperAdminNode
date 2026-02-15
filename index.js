@@ -43,6 +43,6 @@ const adminRoutes = require("./src/Routes/adminRoutes");
 app.use('/admin', adminRoutes);
 
 // Start the server
-server.listen(port, () => {
+app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
