@@ -7,6 +7,7 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET;
 // const emailValidator = require('email-validator');
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const { transporter } = require('./mailTransporter');
 const JWT_KEY = process.env.JWT_KEY;
 
 module.exports.createAdmin = async function createAdmin(req, res) {
@@ -37,13 +38,21 @@ module.exports.createAdmin = async function createAdmin(req, res) {
             databaseName: dbName
         });
 
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Your Admin Account Created",
+            html: `
+                <h2>Welcome ${name}</h2>
+                <p>Your admin account has been created successfully.</p>
+                <p><b>Username:</b> ${userName}</p>
+                <p><b>Password:</b> ${plainPassword}</p>
+                <p>Please login and change your password immediately.</p>
+            `
+        });
+        const userDetails = _.omit(admin.toObject ? admin.toObject() : admin, ["_id", "id", "databaseName", "password"]);
         res.status(200).json({
-            data: admin,
-            // {
-            //     name: name,
-            //     contact: contact,
-            //     email: email,
-            // },
+            data: userDetails,
             message: 'Admin User Created Successfully'
         });
     } catch (error) {
@@ -94,6 +103,30 @@ module.exports.loginAdmin = async function (req, res) {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error" });
+    }
+};
+
+module.exports.adminAuth = async function (req, res, next) {
+    try {
+        const token = req.headers.authorization;
+
+        if (!token) {
+            return res.status(401).json({ message: "Access denied" });
+        }
+
+        const decoded = jwt.verify(token, JWT_KEY);
+
+        // Attach admin info to request
+        req.admin = decoded;
+
+        // Connect to admin specific database
+        const adminDb = mongoose.connection.useDb(decoded.databaseName);
+        req.adminDb = adminDb;
+
+        next();
+
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid token" });
     }
 };
 
