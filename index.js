@@ -1,4 +1,3 @@
-const { Server } = require("socket.io");
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -11,11 +10,11 @@ const app = express();
 const port = 3006;
 const server = http.createServer(app)
 
-const io = new Server(server, {
-    cors: {
-        origin: '*'
-    }
-})
+app.use(cors({
+    origin: "*",   // allow all origins
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 dot.config().parsed;
 const db_link = process.env.db_link
