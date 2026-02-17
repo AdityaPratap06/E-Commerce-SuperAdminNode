@@ -26,8 +26,14 @@ const adminSchema = new Schema({
     databaseName: {
         type: String
     },
+    createdAt: {},
+    status: {
+        type: Boolean
+    },
     verificationToken: String,
     resetToken: String
+}, {
+    timestamps: true
 })
 
 const adminModal = mongoose.model('adminModal', adminSchema);

@@ -1,12 +1,10 @@
-// userController.js
 const adminModal = require('../Modals/adminModal');
 const crypto = require("crypto");
 const bcrypt = require('bcrypt');
 const _ = require('lodash');
-const REFRESH_SECRET = process.env.REFRESH_SECRET;
-// const emailValidator = require('email-validator');
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const moment = require("moment-timezone");
 const { transporter } = require('./mailTransporter');
 const JWT_KEY = process.env.JWT_KEY;
 
@@ -14,15 +12,11 @@ module.exports.createAdmin = async function createAdmin(req, res) {
     try {
         const { name, userName, email, contact } = req.body;
 
-        // if (!emailValidator.validate(email)) {
-        //     return res.status(400).json({ message: 'Invalid email address' });
-        // }
-
         const existingUser = await adminModal.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'Email already in use' });
         }
-
+        const istTime = moment().tz("Asia/Kolkata").format();
         const plainPassword = crypto.randomBytes(6).toString("hex");
         const hashedPassword = await bcrypt.hash(plainPassword, 10);
         const safeUserName = userName.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
@@ -34,8 +28,10 @@ module.exports.createAdmin = async function createAdmin(req, res) {
             userName,
             email,
             contact,
+            status: true,
             password: hashedPassword,
-            databaseName: dbName
+            databaseName: dbName,
+            createdAt: istTime
         });
 
         await transporter.sendMail({
@@ -129,6 +125,94 @@ module.exports.adminAuth = async function (req, res, next) {
         return res.status(401).json({ message: "Invalid token" });
     }
 };
+
+module.exports.getAdminList = async function getAdminList(req, res) {
+    try {
+        let { page = 1, limit = 10, search = "" } = req.query;
+
+        page = parseInt(page);
+        limit = parseInt(limit);
+        const skip = (page - 1) * limit;
+
+        const searchFilter = search
+            ? {
+                $or: [
+                    { name: { $regex: search, $options: "i" } },
+                    { email: { $regex: search, $options: "i" } },
+                    { userName: { $regex: search, $options: "i" } }
+                ]
+            }
+            : {};
+
+        const totalCount = await adminModal.countDocuments(searchFilter);
+
+        const adminList = await adminModal
+            .find(searchFilter)
+            .select("-password -databaseName")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        res.status(200).json({
+            data: adminList,
+            pagination: {
+                totalRecords: totalCount,
+                currentPage: page,
+                totalPages: Math.ceil(totalCount / limit),
+                pageSize: limit
+            },
+            message: "Admin list fetched successfully"
+        });
+
+    } catch (error) {
+        console.log("Error fetching admin list:", error);
+        res.status(500).json({ message: "Internal server error", error });
+    }
+};
+
+module.exports.updateAdmin = async function updateAdmin(req, res) {
+    try {
+        const { adminId } = req.params;
+        const updateData = { ...req.body };
+
+        // Check admin exists
+        const admin = await adminModal.findById(adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        if (updateData.email && updateData.email !== admin.email) {
+            const existingEmail = await adminModal.findOne({ email: updateData.email });
+            if (existingEmail) {
+                return res.status(400).json({ message: "Email already in use" });
+            }
+        }
+
+        if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 10);
+        }
+
+        delete updateData._id;
+        delete updateData.databaseName;
+        delete updateData.createdAt;
+
+        const updatedAdmin = await adminModal.findByIdAndUpdate(
+            adminId,
+            { $set: updateData },
+            { new: true, runValidators: true }
+        ).select("-password -databaseName");
+
+        res.status(200).json({
+            data: updatedAdmin,
+            message: "Admin updated successfully"
+        });
+
+    } catch (error) {
+        console.log("Update admin error:", error);
+        res.status(500).json({ message: "Internal server error", error });
+    }
+};
+
 
 
 // module.exports.login = async function login(req, res) {
