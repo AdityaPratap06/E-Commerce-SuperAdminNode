@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require("cors")
 const dot = require("dotenv")
 const http = require('http');
-const allowedOrigin = ["http://localhost:5173","http://localhost:3000"];
+const allowedOrigin = ["http://localhost:5173", "http://localhost:3000"];
 
 const app = express();
 const port = 3006;
@@ -39,10 +39,11 @@ mongoose.connect(dbLink, {
 });
 // Routers
 const adminRoutes = require("./src/Routes/adminRoutes");
+const categoryRoutes = require("./src/Routes/categoryRoutes");
 
 // Use Routers
 app.use('/admin', adminRoutes);
-
+app.use("/api/categories", categoryRoutes);
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

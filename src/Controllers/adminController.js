@@ -48,12 +48,13 @@ module.exports.createAdmin = async function createAdmin(req, res) {
         });
         const userDetails = _.omit(admin.toObject ? admin.toObject() : admin, ["_id", "id", "databaseName", "password"]);
         res.status(200).json({
+            success: true,
             data: userDetails,
             message: 'Admin User Created Successfully'
         });
     } catch (error) {
         console.log('errr', error)
-        res.status(500).json({ error });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
 
@@ -84,6 +85,7 @@ module.exports.loginAdmin = async function (req, res) {
         );
 
         return res.status(200).json({
+            success: true,
             data: {
                 id: admin._id,
                 dbid: admin.id,
@@ -98,7 +100,7 @@ module.exports.loginAdmin = async function (req, res) {
 
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 };
 
@@ -122,7 +124,7 @@ module.exports.adminAuth = async function (req, res, next) {
         next();
 
     } catch (error) {
-        return res.status(401).json({ message: "Invalid token" });
+        return res.status(401).json({ success: false, message: "Invalid token" });
     }
 };
 
@@ -154,6 +156,7 @@ module.exports.getAdminList = async function getAdminList(req, res) {
             .limit(limit);
 
         res.status(200).json({
+            success: true,
             data: adminList,
             pagination: {
                 totalRecords: totalCount,
@@ -166,7 +169,7 @@ module.exports.getAdminList = async function getAdminList(req, res) {
 
     } catch (error) {
         console.log("Error fetching admin list:", error);
-        res.status(500).json({ message: "Internal server error", error });
+        res.status(500).json({ success: false, message: "Internal server error", error });
     }
 };
 
@@ -203,13 +206,14 @@ module.exports.updateAdmin = async function updateAdmin(req, res) {
         ).select("-password -databaseName");
 
         res.status(200).json({
+            success: true,
             data: updatedAdmin,
             message: "Admin updated successfully"
         });
 
     } catch (error) {
         console.log("Update admin error:", error);
-        res.status(500).json({ message: "Internal server error", error });
+        res.status(500).json({ success: false, message: "Internal server error", error });
     }
 };
 
