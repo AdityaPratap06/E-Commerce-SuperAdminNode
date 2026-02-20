@@ -10,11 +10,11 @@ const app = express();
 const port = 3006;
 const server = http.createServer(app)
 const fs = require("fs");
-app.use(cors({
-    origin: "*",   // allow all origins
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// app.use(cors({
+//     origin: ["http://localhost:5173", "http://localhost:3000"],
+//     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+//     allowedHeaders: ["Content-Type", "Authorization"]
+// }));
 
 dot.config().parsed;
 const db_link = process.env.db_link
@@ -26,10 +26,11 @@ mongoose.connect(db_link)
 
 app.use(express.json());
 // app.use(cors({ 'origin': '*' }));
-app.use(cors({ origin: allowedOrigin, credentials: true }));
+app.use(cors({ origin: true,methods: ["GET", "POST", "PUT", "DELETE","PATCH"],allowedHeaders: ["Content-Type", "Authorization"], credentials: true }));
 app.use(require('cookie-parser')());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 
 const dbLink = process.env.db_link;
 mongoose.connect(dbLink, {
