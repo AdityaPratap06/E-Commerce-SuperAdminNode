@@ -5,11 +5,11 @@ const cors = require("cors")
 const dot = require("dotenv")
 const http = require('http');
 const allowedOrigin = ["http://localhost:5173", "http://localhost:3000"];
-
+const path = require("path");
 const app = express();
 const port = 3006;
 const server = http.createServer(app)
-
+const fs = require("fs");
 app.use(cors({
     origin: "*",   // allow all origins
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -39,10 +39,21 @@ mongoose.connect(dbLink, {
 // Routers
 const adminRoutes = require("./src/Routes/adminRoutes");
 const categoryRoutes = require("./src/Routes/categoryRoutes");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+console.log("Static folder path:", path.resolve(__dirname, "uploads"));
 
+console.log("Uploads exists:", fs.existsSync("uploads"));
 // Use Routers
 app.use('/admin', adminRoutes);
-app.use("/api/categories", categoryRoutes);
+app.use("/categories", categoryRoutes);
+
+// app.get("/uploads", (req, res) => {
+//     fs.readdir(path.join(__dirname, "uploads"), (err, files) => {
+//         if (err) return res.status(500).send(err);
+//         res.json(files);
+//     });
+// });
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

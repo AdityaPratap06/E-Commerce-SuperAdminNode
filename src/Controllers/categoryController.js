@@ -15,9 +15,9 @@ module.exports.createCategory = async function createCategory(req, res) {
 
         // If image uploaded
         if (req.file) {
-            category.image.data = req.file.buffer;
-            category.image.contentType = req.file.mimetype;
+            category.image = req.file.filename;
         }
+        console.log(category, req);
 
         await category.save();
 
@@ -28,7 +28,10 @@ module.exports.createCategory = async function createCategory(req, res) {
                 _id: category._id,
                 name: category.name,
                 description: category.description,
-                hasImage: !!category.image?.data, // just indicator
+                image: req.file
+                    ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+                    : null,
+                hasImage: !!category.image?.data,
             },
         });
 
