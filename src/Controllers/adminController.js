@@ -10,7 +10,7 @@ const JWT_KEY = process.env.JWT_KEY;
 
 module.exports.createAdmin = async function createAdmin(req, res) {
     try {
-        const { name, userName, email, contact } = req.body;
+        const { name, userName, email, contact, categories } = req.body;
 
         const existingUser = await adminModal.findOne({ email });
         if (existingUser) {
@@ -23,6 +23,20 @@ module.exports.createAdmin = async function createAdmin(req, res) {
         const dbName = `admin_${safeUserName}`;
         const newDbConnection = mongoose.connection.useDb(dbName);
         await newDbConnection.collection("init").insertOne({ createdAt: new Date() });
+
+        // Create Categories Collection in Admin DB
+        const CategorySchema = new mongoose.Schema({
+            name: { type: String, required: true },
+            createdAt: { type: Date, default: Date.now }
+        });
+
+        const Category = newDbConnection.model("Category", CategorySchema);
+
+        // Insert categories in admin DB
+        if (categories && categories.length > 0) {
+            const categoryDocs = categories.map(cat => ({ name: cat }));
+            await Category.insertMany(categoryDocs);
+        }
         const admin = await adminModal.create({
             name,
             userName,
