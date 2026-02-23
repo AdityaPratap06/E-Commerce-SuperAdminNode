@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
 const { transporter } = require('./mailTransporter');
+const adminCategorySchema = require('../Modals/adminCategoryModal');
 const JWT_KEY = process.env.JWT_KEY;
 
 module.exports.createAdmin = async function createAdmin(req, res) {
@@ -25,14 +26,10 @@ module.exports.createAdmin = async function createAdmin(req, res) {
         await newDbConnection.collection("init").insertOne({ createdAt: new Date() });
 
         // Create Categories Collection in Admin DB
-        const CategorySchema = new mongoose.Schema({
-            name: { type: String, required: true },
-            createdAt: { type: Date, default: Date.now }
-        });
 
-        const Category = newDbConnection.model("Category", CategorySchema);
 
-        // Insert categories in admin DB
+        const Category = newDbConnection.model("AdminCategory", adminCategorySchema);
+
         if (categories && categories.length > 0) {
             const categoryDocs = categories.map(cat => ({ name: cat }));
             await Category.insertMany(categoryDocs);

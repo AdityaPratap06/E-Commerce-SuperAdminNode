@@ -1,4 +1,7 @@
+const mongoose = require("mongoose");
 const adminModal = require("../Modals/adminModal");
+const subCategorySchema = require("../Modals/subCategoryModal");
+const adminCategorySchema = require("../Modals/adminCategoryModal");
 
 module.exports.createSubCategory = async function createSubCategory(req, res) {
     try {
@@ -12,8 +15,8 @@ module.exports.createSubCategory = async function createSubCategory(req, res) {
 
         const dbConnection = mongoose.connection.useDb(admin.databaseName);
 
-        const Category = dbConnection.model("Category");
-        const SubCategory = dbConnection.model("SubCategory", SubCategorySchema);
+        const Category = dbConnection.model("admincategories", adminCategorySchema);
+        const SubCategory = dbConnection.model("SubCategory", subCategorySchema);
 
         // Check if category exists
         const categoryExists = await Category.findById(categoryId);

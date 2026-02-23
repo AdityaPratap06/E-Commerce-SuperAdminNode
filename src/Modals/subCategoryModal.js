@@ -1,19 +1,12 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const categorySchema = new Schema({
+const subCategorySchema = new Schema({
     name: {
         type: String,
         required: true,
         unique: true,
         trim: true,
-    },
-    description: {
-        type: String,
-    },
-    image: {
-        data: Buffer,
-        contentType: String,
     },
     categoryId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -32,5 +25,5 @@ const categorySchema = new Schema({
     { timestamps: true }
 );
 
-const categoryModal = mongoose.model('categoryModal', categorySchema);
-module.exports = categoryModal;
+// const subCategoryModal = mongoose.model('subCategoryModal', subCategorySchema);
+module.exports = subCategorySchema;

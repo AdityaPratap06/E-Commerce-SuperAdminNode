@@ -40,6 +40,7 @@ mongoose.connect(dbLink, {
 // Routers
 const adminRoutes = require("./src/Routes/adminRoutes");
 const categoryRoutes = require("./src/Routes/categoryRoutes");
+const subCategoryRoutes = require('./src/Routes/subCategoryRoutes');
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 console.log("Static folder path:", path.resolve(__dirname, "uploads"));
@@ -48,6 +49,7 @@ console.log("Uploads exists:", fs.existsSync("uploads"));
 // Use Routers
 app.use('/admin', adminRoutes);
 app.use("/categories", categoryRoutes);
+app.use("/subcategories", subCategoryRoutes);
 
 // app.get("/uploads", (req, res) => {
 //     fs.readdir(path.join(__dirname, "uploads"), (err, files) => {

@@ -30,10 +30,6 @@ const adminSchema = new Schema({
     status: {
         type: Boolean
     },
-    categories: [{
-        type: String,
-        trim: true
-    }],
     verificationToken: String,
     resetToken: String
 }, {
