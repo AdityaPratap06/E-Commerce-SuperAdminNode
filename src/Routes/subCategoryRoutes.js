@@ -1,17 +1,10 @@
 const express = require("express");
-const { createSubCategory } = require("../Controllers/subCategoryController");
+const { createSubCategory, getAllSubCategories, updateSubCategory, deleteSubCategory } = require("../Controllers/subCategoryController");
 const subCategoryRoutes = express.Router();
 
 subCategoryRoutes.route("/create").post(createSubCategory);
-// subCategoryRoutes.route("/").get(getAllCategories);
-// subCategoryRoutes.route("/:id").get(getCategoryById);
-// subCategoryRoutes.route("/:id").put(updateCategory);
-// subCategoryRoutes.route("/:id").delete(deleteCategory);
+subCategoryRoutes.route("/").get(getAllSubCategories);
+subCategoryRoutes.route("/").patch(updateSubCategory);
+subCategoryRoutes.route("/").delete(deleteSubCategory);
 
 module.exports = subCategoryRoutes;
-
-// {
-//   "name": "Electronics",
-//   "description": "All electronic items",
-//   "image": "https://example.com/image.jpg"
-// }

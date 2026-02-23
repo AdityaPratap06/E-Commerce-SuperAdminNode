@@ -43,14 +43,40 @@ module.exports.createSubCategory = async function createSubCategory(req, res) {
     }
 };
 
-exports.getAllCategories = async (req, res) => {
+exports.getAllSubCategories = async (req, res) => {
     try {
-        const categories = await categoryModal.find();
+        const { adminId } = req.body;
+
+        // 1️⃣ Find admin
+        const admin = await adminModal.findById(adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // 2️⃣ Switch DB
+        const dbConnection = mongoose.connection.useDb(admin.databaseName);
+
+        const Category = dbConnection.model("admincategories", adminCategorySchema);
+        dbConnection.model("subcategories", subCategorySchema);
+
+        // 3️⃣ Aggregate categories with subcategories
+        const categories = await Category.aggregate([
+            {
+                $lookup: {
+                    from: "subcategories", // collection name in lowercase & plural (check your actual collection name)
+                    localField: "_id",
+                    foreignField: "categoryId",
+                    as: "subCategories"
+                }
+            }
+        ]);
+
         res.status(200).json({
             success: true,
             count: categories.length,
             data: categories,
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -81,53 +107,76 @@ exports.getCategoryById = async (req, res) => {
         });
     }
 };
-
-exports.updateCategory = async (req, res) => {
+exports.updateSubCategory = async (req, res) => {
     try {
-        const category = await categoryModal.findByIdAndUpdate(
-            req.params.id,
-            req.body,
+        const { adminId, subCategoryId, name, categoryId } = req.body;
+
+        // 1️⃣ Check admin
+        const admin = await adminModal.findById(adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // 2️⃣ Switch DB
+        const dbConnection = mongoose.connection.useDb(admin.databaseName);
+        const SubCategory = dbConnection.model("SubCategory", subCategorySchema);
+
+        // 3️⃣ Find subcategory
+        const subCategory = await SubCategory.findById(subCategoryId);
+        if (!subCategory) {
+            return res.status(404).json({ message: "SubCategory not found" });
+        }
+
+        const updated = await SubCategory.findByIdAndUpdate(
+            subCategoryId,
+            { name, categoryId },
             { new: true, runValidators: true }
         );
 
-        if (!category) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found",
-            });
-        }
-
         res.status(200).json({
             success: true,
-            data: category,
+            message: "SubCategory updated successfully",
+            data: updated
         });
+
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message
         });
     }
 };
 
-exports.deleteCategory = async (req, res) => {
+exports.deleteSubCategory = async (req, res) => {
     try {
-        const category = await categoryModal.findByIdAndDelete(req.params.id);
+        const { adminId, subCategoryId } = req.body;
 
-        if (!category) {
-            return res.status(404).json({
-                success: false,
-                message: "Category not found",
-            });
+        // 1️⃣ Check admin
+        const admin = await adminModal.findById(adminId);
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+
+        // 2️⃣ Switch DB
+        const dbConnection = mongoose.connection.useDb(admin.databaseName);
+        const SubCategory = dbConnection.model("SubCategory", subCategorySchema);
+
+        // 3️⃣ Delete subcategory
+        const deletedSubCategory = await SubCategory.findByIdAndDelete(subCategoryId);
+
+        if (!deletedSubCategory) {
+            return res.status(404).json({ message: "SubCategory not found" });
         }
 
         res.status(200).json({
             success: true,
-            message: "Category deleted successfully",
+            message: "SubCategory deleted successfully"
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: error.message,
+            message: error.message
         });
     }
 };
