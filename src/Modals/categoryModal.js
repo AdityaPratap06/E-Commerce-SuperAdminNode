@@ -12,8 +12,7 @@ const categorySchema = new Schema({
         type: String,
     },
     image: {
-        data: Buffer,
-        contentType: String,
+        type: String
     },
     isActive: {
         type: Boolean,
