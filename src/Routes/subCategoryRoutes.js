@@ -3,7 +3,7 @@ const { createSubCategory, getAllSubCategories, updateSubCategory, deleteSubCate
 const subCategoryRoutes = express.Router();
 
 subCategoryRoutes.route("/create").post(createSubCategory);
-subCategoryRoutes.route("/").get(getAllSubCategories);
+subCategoryRoutes.route("/:adminId").get(getAllSubCategories);
 subCategoryRoutes.route("/").patch(updateSubCategory);
 subCategoryRoutes.route("/").delete(deleteSubCategory);
 

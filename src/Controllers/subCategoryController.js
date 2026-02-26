@@ -45,7 +45,7 @@ module.exports.createSubCategory = async function createSubCategory(req, res) {
 
 exports.getAllSubCategories = async (req, res) => {
     try {
-        const { adminId } = req.body;
+        const adminId = req.params.adminId;
 
         // 1️⃣ Find admin
         const admin = await adminModal.findById(adminId);
