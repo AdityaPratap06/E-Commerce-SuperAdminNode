@@ -15,7 +15,7 @@ module.exports.createAdmin = async function createAdmin(req, res) {
 
         const existingUser = await adminModal.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Email already in use' });
+            return res.status(200).json({ success: false, message: 'Email already in use' });
         }
         const istTime = moment().tz("Asia/Kolkata").format();
         const plainPassword = crypto.randomBytes(6).toString("hex");
@@ -76,13 +76,13 @@ module.exports.loginAdmin = async function (req, res) {
         // Check if admin exists
         const admin = await adminModal.findOne({ email });
         if (!admin) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(200).json({ success: false, message: "Invalid credentials" });
         }
 
         // Compare password
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(200).json({ success: false, message: "Invalid credentials" });
         }
 
         // Create JWT token
@@ -192,13 +192,13 @@ module.exports.updateAdmin = async function updateAdmin(req, res) {
         // Check admin exists
         const admin = await adminModal.findById(adminId);
         if (!admin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(200).json({ success: false, message: "Admin not found" });
         }
 
         if (updateData.email && updateData.email !== admin.email) {
             const existingEmail = await adminModal.findOne({ email: updateData.email });
             if (existingEmail) {
-                return res.status(400).json({ message: "Email already in use" });
+                return res.status(200).json({ success: false, message: "Email already in use" });
             }
         }
 

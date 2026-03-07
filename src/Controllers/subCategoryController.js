@@ -10,7 +10,7 @@ module.exports.createSubCategory = async function createSubCategory(req, res) {
         // Get Admin
         const admin = await adminModal.findById(adminId);
         if (!admin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(200).json({ success: false, message: "Admin not found" });
         }
 
         const dbConnection = mongoose.connection.useDb(admin.databaseName);
@@ -21,7 +21,7 @@ module.exports.createSubCategory = async function createSubCategory(req, res) {
         // Check if category exists
         const categoryExists = await Category.findById(categoryId);
         if (!categoryExists) {
-            return res.status(400).json({ message: "Category not found" });
+            return res.status(200).json({ success: false, message: "Category not found" });
         }
 
         const subCategory = await SubCategory.create({
@@ -50,7 +50,7 @@ exports.getAllSubCategories = async (req, res) => {
         // 1️⃣ Find admin
         const admin = await adminModal.findById(adminId);
         if (!admin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(200).json({ success: false, message: "Admin not found" });
         }
 
         // 2️⃣ Switch DB
@@ -90,7 +90,7 @@ exports.getCategoryById = async (req, res) => {
         const category = await categoryModal.findById(req.params.id);
 
         if (!category) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
                 message: "Category not found",
             });
@@ -114,7 +114,7 @@ exports.updateSubCategory = async (req, res) => {
         // 1️⃣ Check admin
         const admin = await adminModal.findById(adminId);
         if (!admin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(200).json({ success: false, message: "Admin not found" });
         }
 
         // 2️⃣ Switch DB
@@ -124,7 +124,7 @@ exports.updateSubCategory = async (req, res) => {
         // 3️⃣ Find subcategory
         const subCategory = await SubCategory.findById(subCategoryId);
         if (!subCategory) {
-            return res.status(404).json({ message: "SubCategory not found" });
+            return res.status(200).json({ success: false, message: "SubCategory not found" });
         }
 
         const updated = await SubCategory.findByIdAndUpdate(
@@ -154,7 +154,7 @@ exports.deleteSubCategory = async (req, res) => {
         // 1️⃣ Check admin
         const admin = await adminModal.findById(adminId);
         if (!admin) {
-            return res.status(404).json({ message: "Admin not found" });
+            return res.status(200).json({ success: false, message: "Admin not found" });
         }
 
         // 2️⃣ Switch DB
@@ -165,7 +165,7 @@ exports.deleteSubCategory = async (req, res) => {
         const deletedSubCategory = await SubCategory.findByIdAndDelete(subCategoryId);
 
         if (!deletedSubCategory) {
-            return res.status(404).json({ message: "SubCategory not found" });
+            return res.status(200).json({ success: false, message: "SubCategory not found" });
         }
 
         res.status(200).json({

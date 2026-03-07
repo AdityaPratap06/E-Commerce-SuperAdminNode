@@ -33,25 +33,29 @@ module.exports.login = async function login(req, res) {
                     })
                 }
                 else {
-                    return res.json({
+                    return res.status(200).json({
+                        success: false,
                         message: "Wrong credential."
                     })
                 }
             }
             else {
-                return res.json({
+                return res.status(200).json({
+                    success: false,
                     message: "User not found."
                 })
             }
         }
         else {
-            return res.json({
+            return res.status(200).json({
+                success: false,
                 message: "Something Went Wrong."
             })
         }
     }
     catch (err) {
-        return res.json({
+        return res.status(500).json({
+            success: false,
             message: err.message
         })
 
@@ -78,7 +82,7 @@ module.exports.updatePassword = async function
             })
         }
         else {
-            return res.status(404).json({ error: 'User not found. Please sign up first.' });
+            return res.status(200).json({ success: false, error: 'User not found. Please sign up first.' });
         }
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
@@ -89,7 +93,7 @@ module.exports.refreshToken = async function (req, res) {
     try {
         const refreshToken = req.cookies.refreshToken;
         if (!refreshToken) {
-            return res.status(401).json({ message: "No refresh token provided" });
+            return res.status(200).json({ success: false, message: "No refresh token provided" });
         }
 
         const decoded = jwt.verify(refreshToken, REFRESH_SECRET);

@@ -20,6 +20,10 @@ const adminSchema = new Schema({
     password: {
         type: String,
     },
+    defaultPassword: {
+        type: Boolean,
+        default: true
+    },
     userToken: {
         type: String
     },

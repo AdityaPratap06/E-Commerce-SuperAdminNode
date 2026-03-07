@@ -5,7 +5,7 @@ module.exports.createCategory = async function createCategory(req, res) {
         const { name, description } = req.body;
 
         if (!name) {
-            return res.status(400).json({ message: "Name is required" });
+            return res.status(200).json({ message: "Name is required" });
         }
 
         const category = new categoryModal({
@@ -17,11 +17,10 @@ module.exports.createCategory = async function createCategory(req, res) {
         if (req.file) {
             category.image = req.file.filename;
         }
-        console.log(category, req);
 
         await category.save();
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Category created successfully",
             data: {
@@ -64,7 +63,7 @@ exports.getCategoryById = async (req, res) => {
         const category = await categoryModal.findById(req.params.id);
 
         if (!category) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
                 message: "Category not found",
             });
@@ -91,7 +90,7 @@ exports.updateCategory = async (req, res) => {
         );
 
         if (!category) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
                 message: "Category not found",
             });
@@ -102,7 +101,7 @@ exports.updateCategory = async (req, res) => {
             data: category,
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             success: false,
             message: error.message,
         });
@@ -114,7 +113,7 @@ exports.deleteCategory = async (req, res) => {
         const category = await categoryModal.findByIdAndDelete(req.params.id);
 
         if (!category) {
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
                 message: "Category not found",
             });
