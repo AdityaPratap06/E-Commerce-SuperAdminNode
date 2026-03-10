@@ -103,7 +103,8 @@ module.exports.loginAdmin = async function (req, res) {
                 name: admin.name,
                 email: admin.email,
                 userName: admin.userName,
-                contact: admin.userName
+                contact: admin.contact,
+                defaultPassword: admin.defaultPassword,
             },
             message: "Login successful",
             token
